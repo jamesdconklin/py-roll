@@ -62,7 +62,7 @@ If you provide multiple roll strings as arguments, the results will expand into 
 jconk@last-ditch:~$ roll 6 2d6+6
 [11, 14, 14, 14, 17, 13]
 ```
-Nested die rolls, are evaluated once per cycle, even if they govern the size of contained arrays. 
+Nested die rolls are evaluated once per cycle, even if they govern the size of contained arrays. 
 
 ```
 jconk@last-ditch:~$ roll 2 d4 2d6+1
