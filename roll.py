@@ -118,7 +118,7 @@ def array_roll(args, trace=0):
     # if we've multiple roll strings, we're rolling an array
 
     if local_args:
-        verbose_message("Level %d [array_roll]:\tExpanding to List of size %d",
+        verbose_message("Level %d [array_roll]:\tExpanding to list of size %d",
                         trace, roll_value)
         results = [array_roll(local_args, level) for arg in range(roll_value)]
         if sort_results:
