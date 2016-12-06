@@ -9,6 +9,7 @@ import getopt
 def print_help():
     pass
 
+
 # Helper for verbose rolls.
 def verbose_message(msg, *args):
     if verbose:
@@ -86,7 +87,7 @@ def op(expr):
         '/': lambda a, b: a/b,
         '*': lambda a, b: a*b
     }
-    pattern = re.compile(r'(\d*\.?\d+)([\+\-\/\*])(\-?\d*\.?\d+)')
+    pattern = re.compile(r'(\-?\d*\.?\d+)([\+\-\/\*])(\-?\d*\.?\d+)')
     left, op, right = pattern.search(expr).groups()
     left, right = float(left), float(right)
     try:
@@ -97,8 +98,8 @@ def op(expr):
 
 
 def calculate(expr):
-    pattern_md = re.compile(r'\d*\.?\d+[\*\/]\-?\d*\.?\d+')
-    pattern_as = re.compile(r'\d*\.?\d+[\+\-]\-?\d*\.?\d+')
+    pattern_md = re.compile(r'\-?\d*\.?\d+[\*\/]\-?\d*\.?\d+')
+    pattern_as = re.compile(r'\-?\d*\.?\d+[\+\-]\-?\d*\.?\d+')
     while pattern_md.search(expr):
       expr = pattern_md.sub(lambda x: op(x.group()), expr)
     while pattern_as.search(expr):
@@ -113,7 +114,9 @@ def array_roll(args, trace=0):
     level = trace + 1 if trace else 0
     local_args = list(args)
     roll_value = eval_roll(local_args.pop(0), level)
+
     # if we've multiple roll strings, we're rolling an array
+
     if local_args:
         verbose_message("Level %d [array_roll]:\tExpanding to List of size %d",
                         trace, roll_value)
@@ -126,11 +129,17 @@ def array_roll(args, trace=0):
 
 
 if __name__ == "__main__":
+    neg_num_pattern = re.compile(r'^\-[\dd].*$')
     arg_list = sys.argv[1:]
+
+    # Prepend 0 to negative numbers to keep getopts happy.
+
+    for idx in range(len(arg_list)):
+      if neg_num_pattern.match(arg_list[idx]):
+        arg_list[idx] = neg_num_pattern.sub(lambda x: "0" + x.group(), arg_list[idx])
+
     opt_string = "vhs"
     extra=["verbose", "help", "sort"]
-    # TODO: Ditch getopts. It trips when handing roll strings beginning
-    # with a negative, tries to parse them.
     opts, args = getopt.getopt(arg_list, opt_string, extra)
     verbose = 0
     sort_results = False
