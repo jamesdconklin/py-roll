@@ -39,10 +39,12 @@ def roll(xdy, trace=0):
     x,y = xdy.split('d')
     x = int(x) if x else 1
     y = int(y)
-    roll_result = sum([random.randint(1,y) for d in range(x)])
-    verbose_message("Level %d [roll]:\t\tRolling %s: %d", trace, xdy,
-                    roll_result)
+    roll_result = [random.randint(1,y) for d in range(x)]
+    summed_result = sum(roll_result)
+    verbose_message("Level %d [roll]:\t\tRolling %s: %s => %d", trace, xdy,
+                    roll_result, summed_result)
     return roll_result
+
 
 # Split a roll string by outer parentheticals.
 # Recursivelly evaluate the enclosed substring, then
@@ -76,7 +78,7 @@ def eval_roll(roll_string, trace=0):
     return roll_result
 
 
-# TODO: Implement so we don't use eval
+# We roll our own expression evaluator so we don't use the built-in eval()
 def op(expr):
     op_dict = {
         '+': lambda a, b: a+b,
@@ -93,6 +95,7 @@ def op(expr):
         raise ArgumentError("Operator must be +, -, / or *.")
     return str(operator(left, right))
 
+
 def calculate(expr):
     pattern_md = re.compile(r'\d*\.?\d+[\*\/]\-?\d*\.?\d+')
     pattern_as = re.compile(r'\d*\.?\d+[\+\-]\-?\d*\.?\d+')
@@ -101,6 +104,7 @@ def calculate(expr):
     while pattern_as.search(expr):
       expr = pattern_as.sub(lambda x: op(x.group()), expr)
     return float(expr)
+
 
 # For rolling multiple subrolls separately.
 def array_roll(args, trace=0):
@@ -120,12 +124,13 @@ def array_roll(args, trace=0):
     else:
         return roll_value
 
+
 if __name__ == "__main__":
     arg_list = sys.argv[1:]
     opt_string = "vhs"
     extra=["verbose", "help", "sort"]
-    #TODO: Ditch getopts. It trips when handing roll strings beginning
-    #with a negative, tries to parse them.
+    # TODO: Ditch getopts. It trips when handing roll strings beginning
+    # with a negative, tries to parse them.
     opts, args = getopt.getopt(arg_list, opt_string, extra)
     verbose = 0
     sort_results = False
@@ -134,7 +139,7 @@ if __name__ == "__main__":
         if opt[0] in ['-v', '--verbose']:
             verbose = 1
         elif opt[0] in ['-h', '--help']:
-			print_help(); sys.exit(0)
+            print_help(); sys.exit(0)
         elif opt[0] in ['-s', '--sort']:
             sort_results = True
 
