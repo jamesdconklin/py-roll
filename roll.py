@@ -5,7 +5,7 @@ import re
 import sys
 import getopt
 
-# TODO: Implement help. 
+# TODO: Implement help.
 def print_help():
     pass
 
@@ -15,7 +15,7 @@ def verbose_message(msg, *args):
         print msg % args
 
 
-#Return indices of outer parentheses. Raise error if mismatched. 
+#Return indices of outer parentheses. Raise error if mismatched.
 def paren_slice(roll_string, trace=0):
     idx_left, idx_right = 0, len(roll_string)-1
     while roll_string[idx_left] != '(':
@@ -32,27 +32,31 @@ def paren_slice(roll_string, trace=0):
     verbose_message("Level %d [paren_slice]:\tSlicing %s from %s", trace,
                    roll_string[idx_left: idx_right+1], roll_string)
     return (idx_left+1,idx_right)
-    
 
-#Roll a string in the form of xdy, i.e. roll x y-sided dice and sum results. 
+
+#Roll a string in the form of xdy, i.e. roll x y-sided dice and sum results.
 def roll(xdy, trace=0):
     x,y = xdy.split('d')
     x = int(x) if x else 1
     y = int(y)
     roll_result = sum([random.randint(1,y) for d in range(x)])
-    verbose_message("Level %d [roll]:\t\tRolling %s: %d", trace, xdy, 
+    verbose_message("Level %d [roll]:\t\tRolling %s: %d", trace, xdy,
                     roll_result)
     return roll_result
 
+# Split a roll string by outer parentheticals.
+# Recursivelly evaluate the enclosed substring, then
+# substitute xdy substrings with the results of roll.
+
 def eval_roll(roll_string, trace=0):
-    verbose_message("Level %d [eval_roll]:\tEvaluating %s", trace, 
+    verbose_message("Level %d [eval_roll]:\tEvaluating %s", trace,
                     roll_string)
     level = trace+1 if trace else 0
     eval_string = roll_string
 
     if re.search("^[^\)]*\(.*\)[^\(]*$",eval_string):
         left, right = paren_slice(eval_string, level)
-        eval_string = "%s%d%s" % (eval_string[:left-1], 
+        eval_string = "%s%d%s" % (eval_string[:left-1],
                                   eval_roll(eval_string[left:right], level),
                                   eval_string[right+1:])
         verbose_message("Level %d [eval_roll]:\tCondensed %s to %s", trace,
@@ -62,19 +66,45 @@ def eval_roll(roll_string, trace=0):
                          eval_string)
 
     try:
-        roll_result = int(eval(eval_string))
+        roll_result = int(calculate(eval_string))
     except:
-        raise ValueError("Malformed Roll String: %s" % roll_string)   
+        raise ValueError("Malformed Roll String: %s" % roll_string)
 
-    verbose_message("Level %d [eval_roll]:\tCalculated %s as %d", trace, 
-                    eval_string, roll_result) 
+    verbose_message("Level %d [eval_roll]:\tCalculated %s as %d", trace,
+                    eval_string, roll_result)
 
     return roll_result
 
 
-# For rolling multiple subrolls separately. 
+# TODO: Implement so we don't use eval
+def op(expr):
+    op_dict = {
+        '+': lambda a, b: a+b,
+        '-': lambda a, b: a-b,
+        '/': lambda a, b: a/b,
+        '*': lambda a, b: a*b
+    }
+    pattern = re.compile(r'(\d*\.?\d+)([\+\-\/\*])(\-?\d*\.?\d+)')
+    left, op, right = pattern.search(expr).groups()
+    left, right = float(left), float(right)
+    try:
+        operator = op_dict[op]
+    except KeyError:
+        raise ArgumentError("Operator must be +, -, / or *.")
+    return str(operator(left, right))
+
+def calculate(expr):
+    pattern_md = re.compile(r'\d*\.?\d+[\*\/]\-?\d*\.?\d+')
+    pattern_as = re.compile(r'\d*\.?\d+[\+\-]\-?\d*\.?\d+')
+    while pattern_md.search(expr):
+      expr = pattern_md.sub(lambda x: op(x.group()), expr)
+    while pattern_as.search(expr):
+      expr = pattern_as.sub(lambda x: op(x.group()), expr)
+    return float(expr)
+
+# For rolling multiple subrolls separately.
 def array_roll(args, trace=0):
-    verbose_message("Level %d [array_roll]:\tEvaluating %s", trace, 
+    verbose_message("Level %d [array_roll]:\tEvaluating %s", trace,
                     ' '.join(args))
     level = trace + 1 if trace else 0
     local_args = list(args)
@@ -85,9 +115,9 @@ def array_roll(args, trace=0):
                         trace, roll_value)
         results = [array_roll(local_args, level) for arg in range(roll_value)]
         if sort_results:
-            results.sort()                        
+            results.sort()
         return results
-    else: 
+    else:
         return roll_value
 
 if __name__ == "__main__":
@@ -113,7 +143,7 @@ if __name__ == "__main__":
 
     dimension = 0
     payload = None
-    
+
     try:
         print array_roll(args, verbose)
         sys.exit(0)
