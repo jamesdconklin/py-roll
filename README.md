@@ -69,3 +69,24 @@ jconk@last-ditch:~$ roll 2 d4 2d6+1
 [[10, 4], [7, 7, 5, 9]]
 ```
 
+The script currently supports two options: `-v` or `--verbose` for verbose output and -s or --sort. The verbose optiojn will help you track exactly what dice are rolled and values calculated at each recursive level.
+
+```
+jconk@last-ditch:~$ roll -v 1.5*\(4d6+4\)-10
+Level 1 [array_roll]:	Evaluating 1.5*(4d6+4)-10
+Level 2 [eval_roll]:	Evaluating 1.5*(4d6+4)-10
+Level 3 [paren_slice]:	Slicing (4d6+4) from 1.5*(4d6+4)-10
+Level 3 [eval_roll]:	Evaluating 4d6+4
+Level 4 [roll]:		Rolling 4d6: [4, 2, 4, 5] => 15
+Level 3 [eval_roll]:	Calculated 15+4 as 19
+Level 2 [eval_roll]:	Condensed 1.5*(4d6+4)-10 to 1.5*19-10
+Level 2 [eval_roll]:	Calculated 1.5*19-10 as 18
+18
+```
+
+The sort option will sort top-level results in an array roll. Unfortunately, nested sorting is not yet supported. 
+
+```
+jconk@last-ditch:~$ roll -s 6 2d6+6
+[10, 11, 15, 16, 16, 18]
+```
