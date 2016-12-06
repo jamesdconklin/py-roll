@@ -101,9 +101,9 @@ def calculate(expr):
     pattern_md = re.compile(r'\-?\d*\.?\d+[\*\/]\-?\d*\.?\d+')
     pattern_as = re.compile(r'\-?\d*\.?\d+[\+\-]\-?\d*\.?\d+')
     while pattern_md.search(expr):
-      expr = pattern_md.sub(lambda x: op(x.group()), expr)
+      expr = pattern_md.sub(lambda x: op(x.group()), expr, count=1)
     while pattern_as.search(expr):
-      expr = pattern_as.sub(lambda x: op(x.group()), expr)
+      expr = pattern_as.sub(lambda x: op(x.group()), expr, count=1)
     return float(expr)
 
 
