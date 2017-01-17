@@ -20,7 +20,7 @@ You can see this more clearly by setting the verbose flag with `-v` or `--verbos
 jconk@last-ditch:~$ roll -v
 Level 1 [array_roll]:	Evaluating d20
 Level 2 [eval_roll]:	Evaluating d20
-Level 3 [roll]:		Rolling d20: [6] => 6
+Level 3 [roll]:		    Rolling d20: [6] => 6
 Level 2 [eval_roll]:	Calculated 6 as 6
 6
 ```
@@ -31,14 +31,14 @@ jconk@last-ditch:~$ roll 3d6
 8
 ```
 
-Individual roll strings may roll specify simple arithmetic operations to be cocnducted on numeric literals or the results of xdy rolls. 
+Individual roll strings may specify simple arithmetic operations to be cocnducted on numeric literals or the results of xdy rolls. 
 
 ```
 jconk@last-ditch:~$ roll -v 1.5*3d6+2d8/2
 Level 1 [array_roll]:	Evaluating 1.5*3d6+2d8/2
 Level 2 [eval_roll]:	Evaluating 1.5*3d6+2d8/2
-Level 3 [roll]:		Rolling 3d6: [6, 2, 3] => 11
-Level 3 [roll]:		Rolling 2d8: [3, 2] => 5
+Level 3 [roll]:		    Rolling 3d6: [6, 2, 3] => 11
+Level 3 [roll]:		    Rolling 2d8: [3, 2] => 5
 Level 2 [eval_roll]:	Calculated 1.5*11+5/2 as 19
 19
 ```
