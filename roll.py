@@ -18,6 +18,25 @@ def _verbose_message(msg, *msg_params):
     if verbose:
         print msg % msg_params
 
+# Helper for splitting by commas and spaces not bounded by ops.
+def _tokenizer(roll_strings):
+    array_roll_pattern = re.compile(r'\s+')
+    new_roll_pattern = re.compile(r'\s*,\s*')
+    collapse_right = re.compile(r'([\+\-\/\*\(])\s+([d\d\(])')
+    collapse_left = re.compile(r'([d\d\)])\s+([\+\-\/\*\)\(])')
+
+    collapse = lambda x: ''.join(x.groups())
+
+    collapsed_string = collapse_left.sub(
+        collapse,
+        collapse_right.sub(
+            collapse,
+            ' '.join(roll_strings)
+        )
+    )
+    new_rolls = new_roll_pattern.split(collapsed_string)
+    return [array_roll_pattern.split(new_roll) for new_roll in new_rolls]
+
 
 # Return indices of outer parentheses. Raise error if mismatched.
 def _paren_slice(roll_string, trace=0):
@@ -102,6 +121,8 @@ def _eval_op(expr):
 
 
 def _calculate(expr):
+    if expr == '':
+        return 0
     pattern_md = re.compile(r'\-?\d*\.?\d+[\*\/]\-?\d*\.?\d+')
     pattern_as = re.compile(r'\-?\d*\.?\d+[\+\-]\-?\d*\.?\d+')
     while pattern_md.search(expr):
@@ -165,7 +186,8 @@ if __name__ == "__main__":
         args = ["d20"]
 
     try:
-        print array_roll(args, verbose)
+        for sub_roll in _tokenizer(args):
+            print "%s => %s" % (' '.join(sub_roll), array_roll(sub_roll, verbose))
         sys.exit(0)
     except ValueError as value_error:
         print value_error
