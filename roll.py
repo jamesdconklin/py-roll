@@ -8,9 +8,17 @@ import re
 import sys
 import getopt
 
+ENDC = '\033[0m'
+OKGREEN = '\033[92m'
+FAIL = '\033[91m'
+
 # TODO: Implement help.
 def _print_help():
     pass
+
+
+def _colorize_text(text, color):
+    return "%s%s%s" % (color, text, ENDC)
 
 
 # Helper for verbose rolls.
@@ -185,10 +193,17 @@ if __name__ == "__main__":
     if not args:
         args = ["d20"]
 
-    try:
-        for sub_roll in _tokenizer(args):
-            print "%s => %s" % (' '.join(sub_roll), array_roll(sub_roll, verbose))
-        sys.exit(0)
-    except ValueError as value_error:
-        print value_error
-        sys.exit(1)
+    for sub_roll in _tokenizer(args):
+        try:
+            result = array_roll(sub_roll, verbose)
+            if verbose:
+                print _colorize_text(
+                    "%s => %s" % (' '.join(sub_roll), result),
+                    OKGREEN
+                )
+            else:
+                print result
+        except ValueError as value_error:
+            print _colorize_text(value_error, FAIL)
+            sys.exit(1)
+    sys.exit(0)
